@@ -5,16 +5,19 @@ import android.view.ViewGroup
 import com.example.weatherapp.R
 import com.example.weatherapp.business.model.HourlyWeatherModel
 import com.example.weatherapp.databinding.ItemDayHourrlyBinding
+import com.example.weatherapp.view.*
 
 class MainHourlyListAdapter: BaseAdapter<HourlyWeatherModel>() {
 
 
     inner class HourlyViewHolder(val binding: ItemDayHourrlyBinding): BaseViewHolder(binding.root) {
         override fun bindView(position: Int) {
-            binding.itemHourlyTimeTv.text = "15 : 00"
-            binding.itemHourlyTempTv.text = "24\u00B0"
-            binding.itemHourlyImageview.setImageResource(R.drawable.sun)
-            binding.itemHourlyPopTv.text = "45%"
+            mData[position].apply {
+                binding.itemHourlyTimeTv.text = dt.toDayFormatOf(HOUR_DOUBLE_DOT_MINUTE)
+                binding.itemHourlyTempTv.text = StringBuilder().append(temp.toDegree()).append("\u00B0")
+                binding.itemHourlyPopTv.text = pop.toString()
+                binding.itemHourlyImageview.setImageResource(weather[0].icon.provideIcon())
+            }
         }
 
     }
@@ -24,5 +27,4 @@ class MainHourlyListAdapter: BaseAdapter<HourlyWeatherModel>() {
     }
 
 
-    override fun getItemCount(): Int = 25
 }

@@ -6,14 +6,14 @@ import com.example.weatherapp.business.repos.MainRepository
 import com.example.weatherapp.business.repos.TAG
 import com.example.weatherapp.view.MainView
 
-
+const val TAG = "GEO_TEST"
 class MainPresenter: BasePresenter<MainView>() {
 
     private val repo = MainRepository(ApiProvider())
 
     override fun enable() {
         repo.dataEmitter.subscribe { response ->
-            Log.d("REPOSTIRY_TEST", "Presenter_enable() ")
+            Log.d(TAG, "Presenter_enable() $response")
             viewState.displayLocation(response.cityName)
             viewState.displayCurrentData(response.weatherData)
             viewState.displayDailyData(response.weatherData.daily)
@@ -25,5 +25,6 @@ class MainPresenter: BasePresenter<MainView>() {
 
     fun refresh(lat: String, lot: String) {
         viewState.setLoading(true)
+        repo.reloadData(lat, lot)
     }
 }

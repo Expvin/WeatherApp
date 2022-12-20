@@ -7,8 +7,9 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.*
 
-const val TAG = "REPOSTIRY_TEST"
+const val TAG = "GEO_TEST"
 class MainRepository(api: ApiProvider): BaseRepository<MainRepository.ServerReponse>(api) {
 
     fun reloadData(lat: String, lon: String) {
@@ -16,11 +17,18 @@ class MainRepository(api: ApiProvider): BaseRepository<MainRepository.ServerRepo
             api.providerWeatherApi().getWeatherForecast(lat, lon),
             api.providerGeoCodeApi().getCityByCord(lat, lon).map {
                 it.asSequence()
-                    .map { model -> model.name }
+                    .map { model ->
+                        when (Locale.getDefault().displayLanguage) {
+                            "русский" -> model.local_names.ru
+                            "English" -> model.local_names.en
+                            else -> model.name
+                        }
+                    }
                     .toList()
                     .filterNotNull()
                     .first()
-            }, {weaherData, geoCode -> ServerReponse(geoCode, weaherData)}
+            },
+            { weatherData, geoCode -> ServerReponse(geoCode, weatherData) }
         )
             .subscribeOn(Schedulers.io())
             .doOnNext{ /* TODO тут будет добавление данных */}
@@ -31,14 +39,11 @@ class MainRepository(api: ApiProvider): BaseRepository<MainRepository.ServerRepo
                     dataEmitter.onNext(it)
                 }, {
                     Log.d(TAG, "reloadData: $it")
-                }
-            )
+                })
     }
-
     data class ServerReponse(
         val cityName: String,
         val weatherData: WeatherDataModel,
         val error: Throwable? = null
     )
-
 }

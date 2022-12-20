@@ -68,24 +68,24 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/weather_condition_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/sun_custom"
-            app:layout_constraintBottom_toTopOf="@+id/materialTextView"
-            app:layout_constraintStart_toStartOf="@+id/materialTextView" />
+            app:layout_constraintBottom_toTopOf="@+id/main_temp_tv"
+            app:layout_constraintStart_toStartOf="@+id/main_temp_tv" />
 
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/main_weather_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-
             android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/materialTextView"
+            app:layout_constraintBottom_toTopOf="@+id/main_temp_tv"
             app:layout_constraintEnd_toStartOf="@+id/cloud_imageView"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintStart_toEndOf="@+id/weather_condition_icon"
             tools:text="ясно" />
 
         <LinearLayout
@@ -101,7 +101,7 @@
         </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/materialTextView"
+            android:id="@+id/main_temp_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
@@ -264,7 +264,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:textSize="18sp"
-                    tools:text="70%" />
+                    tools:text="70 м/с" />
             </LinearLayout>
         </LinearLayout>
 

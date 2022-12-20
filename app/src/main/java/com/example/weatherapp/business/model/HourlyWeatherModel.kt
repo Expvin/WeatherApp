@@ -3,7 +3,7 @@ package com.example.weatherapp.business.model
 data class HourlyWeatherModel(
     val clouds: Int,
     val dew_point: Double,
-    val dt: Int,
+    val dt: Long,
     val feels_like: Double,
     val humidity: Int,
     val pop: Double,
