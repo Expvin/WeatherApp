@@ -1,4 +1,4 @@
-package com.example.weatherapp.business.presenters
+package com.example.weatherapp.presenters
 
 import android.util.Log
 import com.example.weatherapp.business.ApiProvider

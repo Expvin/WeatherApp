@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.example.weatherapp.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 const val GEO_LOCATION_REQUEST_COD_SUCCESS = 1

@@ -1,6 +1,7 @@
 package com.example.weatherapp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapp.business.model.DailyWeatherModel
 import com.example.weatherapp.business.model.HourlyWeatherModel
 import com.example.weatherapp.business.model.WeatherDataModel
-import com.example.weatherapp.business.presenters.MainPresenter
+import com.example.weatherapp.presenters.MainPresenter
 import com.example.weatherapp.databinding.ActivityMainBinding
 import com.example.weatherapp.view.*
 import com.example.weatherapp.view.adapters.MainDailyAdapter
@@ -17,14 +18,13 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.R
 import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
 
 
 const val TAG = "GEO_TEST"
-
+const val COORDINATES = "Coordinates"
 class MainActivity : MvpAppCompatActivity(), MainView {
 
     private lateinit var binding: ActivityMainBinding
@@ -55,9 +55,27 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             setHasFixedSize(true)
         }
 
+
+        if (!intent.hasExtra(COORDINATES)) {
+            geoService.requestLocationUpdates(locationRequest, geoCallback, null)
+        } else {
+            val coord = intent.extras!!.getBundle(COORDINATES)!!
+            val loc = Location("")
+            loc.latitude = coord.getString("lat")!!.toDouble()
+            loc.longitude = coord.getString("lon")!!.toDouble()
+            mLocation = loc
+            mainPresent.refresh(lat = mLocation.latitude.toString(), lot = mLocation.longitude.toString())
+        }
+
+        binding.mainMenuBth.setOnClickListener {
+            val intent = Intent(this, MenuActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_left, android.R.anim.fade_out)
+        }
+
         mainPresent.enable()
 
-        geoService.requestLocationUpdates(locationRequest, geoCallback, null)
+
     }
 
 
