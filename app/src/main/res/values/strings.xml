@@ -3,8 +3,24 @@
     <string name="max">max</string>
     <string name="med">med</string>
     <string name="min">min</string>
-    <string name="api_key">34ddc8e46592fa496e871e4d4a3fbae3</string>
+    <string name="api_key" translatable="false">34ddc8e46592fa496e871e4d4a3fbae3</string>
     <string name="location">Location</string>
     <string name="comma" translatable="false">, %1$s</string>
+    <string name="temperature">Temperature</string>
+    <string name="m_s">m/s</string>
+    <string name="km_h">km/h</string>
+    <string name="mmhg">mmHg</string>
+    <string name="hpa">hPa</string>
+
+    <string name="wind_speed_mu_ms" translatable="false">%1$s m/s</string>
+    <string name="wind_speed_mu_kmh" translatable="false">%1$s km/h</string>
+    <string name="pressure_mu_hpa" translatable="false">%1$s hPa</string>
+    <string name="pressure_mu_mmHg" translatable="false">%1$s mmHg</string>
+
+    <string name="c" translatable="false">\u00B0C</string>
+    <string name="f" translatable="false">\u00B0F</string>
+    <string name="wind_speed">Wind Speed</string>
+    <string name="pressure">Pressure</string>
+    <string name="title_settings">Settings</string>
 </resources>
 

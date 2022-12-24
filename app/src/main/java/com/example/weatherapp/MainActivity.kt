@@ -41,7 +41,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        initViews()
+        //initViews()
 
         binding.mainHourlyList.apply {
             adapter = MainHourlyListAdapter()
@@ -73,8 +73,13 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             overridePendingTransition(R.anim.slide_in_left, android.R.anim.fade_out)
         }
 
-        mainPresent.enable()
+        binding.mainSettingsBth.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition( R.anim.slide_in_rigth, android.R.anim.fade_in)
+        }
 
+        mainPresent.enable()
 
     }
 
@@ -127,6 +132,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding.cityNameTv.text = data
     }
 
+    @SuppressLint("ResourceType")
     override fun displayCurrentData(data: WeatherDataModel) {
         data.apply {
             binding.dateTv.text = current.dt.toDayFormatOf(DAY_FULL_MONTH_NAME)
@@ -138,9 +144,12 @@ class MainActivity : MvpAppCompatActivity(), MainView {
                 binding.medMainTempTv.text = eve.toDegree()
                 binding.minMainTempTv.text = min.toDegree()
             }
-            binding.mainPressureTv.text = StringBuilder().append(current.pressure.toString()).append(" кПа")
+            val pressureSet = SettingsHolder.pressure
+            binding.mainPressureTv.text = getString(pressureSet.mesureUnitStringRes, pressureSet.getValue(current.pressure.toDouble()))
+            val windSpeedSet = SettingsHolder.windSpeed
+            binding.mainWindSpeedTv.text = getString(windSpeedSet.mesureUnitStringRes, windSpeedSet.getValue(current.wind_speed))
             binding.mainHumidityTv.text = StringBuilder().append(current.humidity.toString()).append(" %")
-            binding.mainWindSpeedTv.text = StringBuilder().append(current.wind_speed.toString()).append(" м/с")
+
             binding.mainSunriseTv.text = current.sunrise.toDayFormatOf(HOUR_DOUBLE_DOT_MINUTE)
             binding.mainSunsetTv.text = current.sunset.toDayFormatOf(HOUR_DOUBLE_DOT_MINUTE)
         }

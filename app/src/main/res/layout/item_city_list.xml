@@ -11,6 +11,7 @@
         android:id="@+id/location"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        app:cardBackgroundColor="@android:color/transparent"
         android:layout_weight="5"
         app:cardElevation="0dp">
 
@@ -30,6 +31,7 @@
                     android:id="@+id/search_city"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/MainTextViewStyle"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     tools:text="City name" />
@@ -38,6 +40,7 @@
                     android:id="@+id/state"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/MainTextViewStyle"
                     android:textSize="14sp"
                     tools:text=", State" />
             </LinearLayout>
@@ -47,6 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
+                style="@style/MainTextViewStyle"
                 tools:text="Country" />
 
         </LinearLayout>

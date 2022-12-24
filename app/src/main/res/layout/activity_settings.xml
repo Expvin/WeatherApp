@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/settings_background_color"
+    tools:context=".SettingsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/inner_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            style="@style/Widget.MaterialComponents.ActionBar.Primary"
+            android:background="@color/white"
+            app:title="@string/title_settings"
+            app:navigationIcon="@drawable/ic_arrow_back_screen"
+            app:navigationIconTint="@android:color/black"/>
+        
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:id="@+id/one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:layout_marginTop="16dp"
+        android:background="@color/white">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:text="@string/temperature"
+            android:layout_marginStart="16dp"
+            android:textColor="@android:color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"/>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/groupTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:layout_gravity="end"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/degreeC"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                style="?attr/materialButtonOutlinedStyle"
+                android:text="@string/c"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/degreeF"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                style="?attr/materialButtonOutlinedStyle"
+                android:text="@string/f"/>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/one"
+        android:layout_marginTop="16dp"
+        android:background="@color/white">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:text="@string/wind_speed"
+            android:layout_marginStart="16dp"
+            android:textColor="@android:color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"/>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/groupWindSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:layout_gravity="end"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/speed_ms"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                style="?attr/materialButtonOutlinedStyle"
+                android:text="@string/m_s"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/speed_kmh"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                style="?attr/materialButtonOutlinedStyle"
+                android:text="@string/km_h"/>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/thee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/two"
+        android:layout_marginTop="16dp"
+        android:background="@color/white">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:text="@string/pressure"
+            android:layout_marginStart="16dp"
+            android:textColor="@android:color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"/>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/groupPressure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            android:layout_gravity="end"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/pressure_mmHg"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                style="?attr/materialButtonOutlinedStyle"
+                android:text="@string/mmhg"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/pressure_hPa"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                style="?attr/materialButtonOutlinedStyle"
+                android:text="@string/hpa"/>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

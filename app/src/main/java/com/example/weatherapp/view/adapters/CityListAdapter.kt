@@ -6,6 +6,7 @@ import com.example.weatherapp.R
 import com.example.weatherapp.business.model.GeoCodeModel
 import com.example.weatherapp.databinding.ItemCityListBinding
 import com.google.android.material.button.MaterialButton
+import java.util.*
 
 class CityListAdapter: BaseAdapter<GeoCodeModel>() {
 
@@ -32,8 +33,12 @@ class CityListAdapter: BaseAdapter<GeoCodeModel>() {
 
             mData[position].apply {
                 binding.state.text = if (!state.isNullOrEmpty()) itemView.context.getString(R.string.comma, state) else ""
-                binding.searchCity.text = local_names.ru
-                binding.country.text = country
+//                binding.searchCity.text = when (Locale.getDefault().displayLanguage) {
+//                    "русский" -> local_names.ru?: name
+//                    "English" -> local_names.en?: name
+//                    else -> "non" }
+                binding.searchCity.text = name
+                binding.country.text = Locale("", country).displayName
                 binding.favorite.isChecked = isFavorite
             }
 

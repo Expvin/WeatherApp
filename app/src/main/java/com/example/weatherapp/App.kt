@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.weatherapp.business.room.OpenWeatherDatabase
+import com.example.weatherapp.view.SettingsHolder
 
 
 const val APP_SETTINGS = "App Settings"
@@ -22,6 +23,7 @@ class App: Application() {
             .fallbackToDestructiveMigration()
             .build()
         val preferences = getSharedPreferences(APP_SETTINGS, MODE_PRIVATE)
+        SettingsHolder.onCreate(preferences)
         val flag = preferences.contains(IS_START_UP)
 
         if (!flag) {

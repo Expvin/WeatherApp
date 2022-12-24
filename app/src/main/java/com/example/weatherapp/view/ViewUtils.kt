@@ -22,7 +22,7 @@ fun Long.toDayFormatOf(format: String): String {
     return sdf.format(Date(this * 1000))
 }
 
-fun Double.toDegree() = (this - 273.15).roundToInt().toString()
+fun Double.toDegree() = SettingsHolder.temp.getValue(this)
 
 fun Double.toPercentString(extraPath: String = "") = (this * 100).roundToInt().toString() + extraPath
 

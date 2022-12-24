@@ -18,7 +18,6 @@ import moxy.ktx.moxyPresenter
 import java.util.concurrent.TimeUnit
 
 
-
 class MenuActivity : MvpAppCompatActivity(), MenuView {
     private val presenter by moxyPresenter { MenuPresenter() }
     lateinit var binding: ActivityMenuBinding
@@ -38,7 +37,7 @@ class MenuActivity : MvpAppCompatActivity(), MenuView {
             .debounce(700, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                //if (it.isNotEmpty()) presenter.search_for(it)
+                if (it.isNotEmpty()) presenter.searchFor(it)
             }
 
     }
@@ -90,6 +89,7 @@ class MenuActivity : MvpAppCompatActivity(), MenuView {
             bundle.putString("lat", item.lat.toString())
             bundle.putString("lon", item.lon.toString())
             intent.putExtra(COORDINATES, bundle)
+            startActivity(intent)
             overridePendingTransition(android.R.anim.fade_in, R.anim.slide_out_left)
         }
 

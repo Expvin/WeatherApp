@@ -1,10 +1,11 @@
 package com.example.weatherapp.business.repos
 
-import com.example.weatherapp.App.Companion.db
+
 import com.example.weatherapp.business.ApiProvider
 import com.example.weatherapp.business.mapToEntity
 import com.example.weatherapp.business.mapToModel
 import com.example.weatherapp.business.model.GeoCodeModel
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 const val SAVED = 1
@@ -16,6 +17,7 @@ class MenuRepository(api: ApiProvider): BaseRepository<MenuRepository.Content>(a
     fun getCities(name: String) {
         api.providerGeoCodeApi().getCityByName(name)
             .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .map { Content(it, CURRENT) }
             .subscribe { dataEmitter.onNext(it) }
     }
