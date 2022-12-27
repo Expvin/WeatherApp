@@ -24,7 +24,7 @@ fun Long.toDayFormatOf(format: String): String {
 
 fun Double.toDegree() = SettingsHolder.temp.getValue(this)
 
-fun Double.toPercentString(extraPath: String = "") = (this * 100).roundToInt().toString() + extraPath
+fun Double.toPercentString(extraPart: String = "") = (this * 100).roundToInt().toString() + extraPart
 
 fun String.provideIcon() = when(this){
     "01n", "01d" -> R.drawable.ic_01d

@@ -2,9 +2,14 @@ package com.example.weatherapp
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.IntentSender
+import android.graphics.Point
 import android.location.Location
+import android.media.ResourceBusyException
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.weatherapp.business.model.DailyWeatherModel
 import com.example.weatherapp.business.model.HourlyWeatherModel
@@ -14,25 +19,43 @@ import com.example.weatherapp.databinding.ActivityMainBinding
 import com.example.weatherapp.view.*
 import com.example.weatherapp.view.adapters.MainDailyAdapter
 import com.example.weatherapp.view.adapters.MainHourlyListAdapter
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
+import kotlin.math.roundToInt
 
 
 const val TAG = "GEO_TEST"
 const val COORDINATES = "Coordinates"
 class MainActivity : MvpAppCompatActivity(), MainView {
-
     private lateinit var binding: ActivityMainBinding
-
+    private val tokenSource: CancellationTokenSource = CancellationTokenSource()
     private val mainPresent by moxyPresenter{ MainPresenter() }
-
     private val geoService by lazy { LocationServices.getFusedLocationProviderClient(this) }
-    private val locationRequest by lazy { initLocationRequest() }
+    private val locationRequest by lazy { LocationRequest.create().apply {
+        interval = 600_000
+        fastestInterval = 5000
+        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+    } }
+
+    private val geoCallback = object: LocationCallback() {
+        override fun onLocationResult(geo: LocationResult) {
+            super.onLocationResult(geo)
+            for (location in geo.locations) {
+                mLocation = location
+                mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
+                Log.d(TAG, "onLocationResult: lat-${location.latitude} lon-${location.longitude}")
+            }
+        }
+    }
+
     private lateinit var mLocation: Location
 
 
@@ -42,6 +65,12 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         //initViews()
+        initBottomSheets()
+        initSwipeRefresh()
+
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragment_container, DailyListFragment(), DailyListFragment::class.simpleName)
+            .commit()
 
         binding.mainHourlyList.apply {
             adapter = MainHourlyListAdapter()
@@ -49,14 +78,10 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             setHasFixedSize(true)
         }
 
-        binding.mainDallyList.apply {
-            adapter = MainDailyAdapter()
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            setHasFixedSize(true)
-        }
-
 
         if (!intent.hasExtra(COORDINATES)) {
+            checkGeoAvailability()
+            getGeo()
             geoService.requestLocationUpdates(locationRequest, geoCallback, null)
         } else {
             val coord = intent.extras!!.getBundle(COORDINATES)!!
@@ -113,16 +138,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         }
     }
 
-    private val geoCallback = object: LocationCallback() {
-        override fun onLocationResult(geo: LocationResult) {
-            super.onLocationResult(geo)
-            for (location in geo.locations) {
-                mLocation = location
-                mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
-                Log.d(TAG, "onLocationResult: lat-${location.latitude} lon-${location.longitude}")
-            }
-        }
-    }
+
 
     //---------------location code---------------
 
@@ -161,19 +177,75 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     override fun displayDailyData(data: List<DailyWeatherModel>) {
-        (binding.mainDallyList.adapter as MainDailyAdapter).updateData(data)
+       (supportFragmentManager.findFragmentByTag(DailyListFragment::class.simpleName) as DailyListFragment)
+           .setData(data)
     }
 
     override fun displayError(error: Throwable?) {
-
+        Toast.makeText(this@MainActivity, "Ошибка", Toast.LENGTH_SHORT).show()
     }
 
     override fun setLoading(flag: Boolean) {
-
+        binding.refresh.isRefreshing = flag
     }
 
+    private fun initBottomSheets() {
+        binding.mainBottomSheets.isNestedScrollingEnabled = true
+        val size = Point()
+        windowManager.defaultDisplay.getSize(size)
+        binding.mainBottomSheetsContainer.layoutParams =
+            CoordinatorLayout.LayoutParams(size.x, (size.y * 0.5).roundToInt())
+    }
 
+    @SuppressLint("ResourceAsColor")
+    private fun initSwipeRefresh() {
+        binding.refresh.apply {
+            setColorSchemeColors(R.color.purple_500)
+            setProgressViewEndTarget(false, 280)
+                setOnRefreshListener {
+                    mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
+                }
+            }
+        }
     //--------------- moxy code ---------------
 
-    // https://api.openweathermap.org/data/2.5/onecall?lat=54.07328&lon=43.2461&exclude=minutely&appid=ca8d1939be2fc1f8cc73a2e515d9ad1f
+
+    //--------------- geo code ---------------
+    @SuppressLint("MissingPermission")
+    private fun getGeo() {
+        geoService
+            .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, tokenSource.token)
+            .addOnSuccessListener {
+                if (it != null) {
+                    mLocation = it
+                    mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
+                } else {
+                    displayError(Exception("Geodata is not available"))
+                }
+            }
+    }
+
+    private fun checkGeoAvailability() {
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val client = LocationServices.getSettingsClient(this)
+        val task = client.checkLocationSettings(builder.build())
+        task.addOnFailureListener { exception  ->
+            if (exception is ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(this, 100)
+                } catch (sendEx: IntentSender.SendIntentException) {
+
+                }
+            }
+        }
+    }
+    //--------------- geo code ---------------
+
 }
+
+
+
+
+
+
+    // https://api.openweathermap.org/data/2.5/onecall?lat=54.07328&lon=43.2461&exclude=minutely&appid=ca8d1939be2fc1f8cc73a2e515d9ad1f

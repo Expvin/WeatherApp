@@ -1,4 +1,5 @@
 package com.example.weatherapp.view
+import android.location.Location
 import com.example.weatherapp.business.model.DailyWeatherModel
 import com.example.weatherapp.business.model.HourlyWeatherModel
 import com.example.weatherapp.business.model.WeatherDataModel

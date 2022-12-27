@@ -13,4 +13,13 @@
     <string name="pressure">Давление</string>
     <string name="wind_speed">Скорость ветра</string>
     <string name="title_settings">Настройки</string>
+    <string name="feels_like">Ощущается как</string>
+    <string name="morn">утро</string>
+    <string name="day">день</string>
+    <string name="eve">вечер</string>
+    <string name="night">ночь</string>
+    <string name="humidity">Влажность</string>
+    <string name="wind_dir">Направление ветра</string>
+    <string name="sunrise">Восход</string>
+    <string name="sunset">Закат</string>
 </resources>
