@@ -11,7 +11,7 @@ interface WeatherApi {
         @Query("lat") lat: String,
         @Query("lon") lon: String,
         @Query("exclude") exclude: String = "minutely,alerts",
-        @Query("appid") apiid: String = "",
+        @Query("appid") apiid: String = "ca8d1939be2fc1f8cc73a2e515d9ad1f",
         @Query("lang") lang: String = "en"
     ) : Observable<WeatherDataModel>
 }

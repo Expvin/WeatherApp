@@ -20,7 +20,6 @@ class App: Application() {
         super.onCreate()
         // TODO Убрать fallbackToDestructiveMigration()
         db = Room.databaseBuilder(this, OpenWeatherDatabase::class.java, "OpenWeatherDB")
-            .fallbackToDestructiveMigration()
             .build()
         val preferences = getSharedPreferences(APP_SETTINGS, MODE_PRIVATE)
         SettingsHolder.onCreate(preferences)

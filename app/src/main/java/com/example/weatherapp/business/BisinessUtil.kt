@@ -1,6 +1,7 @@
 package com.example.weatherapp.business
 
 import com.example.weatherapp.business.model.GeoCodeModel
+import com.example.weatherapp.business.model.LocalNames
 import com.example.weatherapp.business.room.GeoCodeEntity
 
 
