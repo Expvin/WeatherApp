@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Погода</string>
-    <string name="max">мак</string>
-    <string name="med">сред</string>
-    <string name="min">мин</string>
+    <string name="max">макс.</string>
+    <string name="med">сред.</string>
+    <string name="min">мин.</string>
     <string name="location">Местоположение</string>
     <string name="temperature">Температура</string>
     <string name="m_s">м/с</string>

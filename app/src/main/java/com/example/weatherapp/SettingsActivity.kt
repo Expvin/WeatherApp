@@ -1,5 +1,6 @@
 package com.example.weatherapp
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.weatherapp.databinding.ActivitySettingsBinding

@@ -25,14 +25,14 @@ class App: Application() {
         SettingsHolder.onCreate(preferences)
         val flag = preferences.contains(IS_START_UP)
 
-        if (!flag) {
-            val editor = preferences.edit()
-            editor.putBoolean(IS_START_UP, true)
-            editor.apply()
-            val intent = Intent(this, InitialActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-        }
+//        if (!flag) {
+//            val editor = preferences.edit()
+//            editor.putBoolean(IS_START_UP, true)
+//            editor.apply()
+//            val intent = Intent(this, InitialActivity::class.java)
+//            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//            startActivity(intent)
+//        }
 
     }
 

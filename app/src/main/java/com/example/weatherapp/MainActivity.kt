@@ -1,16 +1,22 @@
 package com.example.weatherapp
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentSender
+import android.content.pm.PackageManager
 import android.graphics.Point
 import android.location.Location
 import android.media.ResourceBusyException
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.weatherapp.Extensions.isPermissionGranted
 import com.example.weatherapp.business.model.DailyWeatherModel
 import com.example.weatherapp.business.model.HourlyWeatherModel
 import com.example.weatherapp.business.model.WeatherDataModel
@@ -26,6 +32,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
@@ -58,74 +65,113 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     private lateinit var mLocation: Location
 
-
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //initViews()
-        initBottomSheets()
-        initSwipeRefresh()
+        val permissionGranted = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (permissionGranted) {
 
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragment_container, DailyListFragment(), DailyListFragment::class.simpleName)
-            .commit()
+            initBottomSheets()
+            initSwipeRefresh()
 
-        binding.mainHourlyList.apply {
-            adapter = MainHourlyListAdapter()
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            setHasFixedSize(true)
-        }
+            supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_container, DailyListFragment(), DailyListFragment::class.simpleName)
+                .commit()
 
+            binding.mainHourlyList.apply {
+                adapter = MainHourlyListAdapter()
+                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                setHasFixedSize(true)
+            }
 
-        if (!intent.hasExtra(COORDINATES)) {
-            checkGeoAvailability()
-            getGeo()
-            geoService.requestLocationUpdates(locationRequest, geoCallback, null)
+            if (!intent.hasExtra(COORDINATES)) {
+                checkGeoAvailability()
+                getGeo()
+                geoService.requestLocationUpdates(locationRequest, geoCallback, null)
+            } else {
+                val coord = intent.extras!!.getBundle(COORDINATES)!!
+                val loc = Location("")
+                loc.latitude = coord.getString("lat")!!.toDouble()
+                loc.longitude = coord.getString("lon")!!.toDouble()
+                mLocation = loc
+                mainPresent.refresh(lat = mLocation.latitude.toString(), lot = mLocation.longitude.toString())
+            }
+
+            binding.mainMenuBth.setOnClickListener {
+                val intent = Intent(this, MenuActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_left, android.R.anim.fade_out)
+            }
+
+            binding.mainSettingsBth.setOnClickListener {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition( R.anim.slide_in_rigth, android.R.anim.fade_in)
+            }
+
+            mainPresent.enable()
+
         } else {
-            val coord = intent.extras!!.getBundle(COORDINATES)!!
-            val loc = Location("")
-            loc.latitude = coord.getString("lat")!!.toDouble()
-            loc.longitude = coord.getString("lon")!!.toDouble()
-            mLocation = loc
-            mainPresent.refresh(lat = mLocation.latitude.toString(), lot = mLocation.longitude.toString())
+            requestPermission()
         }
-
-        binding.mainMenuBth.setOnClickListener {
-            val intent = Intent(this, MenuActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition(R.anim.slide_in_left, android.R.anim.fade_out)
-        }
-
-        binding.mainSettingsBth.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-            overridePendingTransition( R.anim.slide_in_rigth, android.R.anim.fade_in)
-        }
-
-        mainPresent.enable()
 
     }
 
-
-    //--------------- init view ---------------
-
-    private fun initViews() {
-        binding.cityNameTv.text = "Moscow"
-        binding.dateTv.text = "1 april"
-        binding.mainTempTv.text = "25\u00B0"
-        binding.minMainTempTv.text = "19"
-        binding.medMainTempTv.text = "21"
-        binding.maxMainTempTv.text = "28"
-        binding.mainPressureTv.text = "1023 hPa"
-        binding.mainHumidityTv.text = "88 %"
-        binding.mainWindSpeedTv.text = "5 m/s"
-        binding.mainSunriseTv.text = "4:30"
-        binding.mainSunsetTv.text = "22:43"
+    override fun onRestart() {
+        super.onRestart()
+        mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
     }
 
-    //--------------- init view ---------------
+    //---------------permission code---------------
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION),
+            LOCATION_RC
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == LOCATION_RC && grantResults.isNotEmpty()) {
+            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (permissionGranted) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } else {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Нам нужны гео данные")
+                    .setMessage("Пожалуйста, разрешите доступ к данным для дальшейшей работы приложения")
+                    .setPositiveButton("Ok") { _, _ ->
+                        ActivityCompat.requestPermissions(this,
+                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                            GEO_LOCATION_REQUEST_COD_SUCCESS
+                        )
+                        ActivityCompat.requestPermissions(this,
+                            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                            GEO_LOCATION_REQUEST_COD_SUCCESS)
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+                    .setNegativeButton("Cancel") {dialog, _-> dialog.dismiss()}
+                    .create()
+                    .show()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    //---------------permission code---------------
+
 
     //---------------location code---------------
 
@@ -240,6 +286,10 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         }
     }
     //--------------- geo code ---------------
+
+    companion object {
+        private const val LOCATION_RC = 111
+    }
 
 }
 
