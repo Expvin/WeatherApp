@@ -22,4 +22,7 @@
     <string name="wind_dir">Направление ветра</string>
     <string name="sunrise">Восход</string>
     <string name="sunset">Закат</string>
+
+    <string name="request_permission">"Для работы нужно разрешение."</string>
+    <string name="dialog_text">"Приложение не может работать без доступа к гео локации."</string>
 </resources>

@@ -75,6 +75,10 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (permissionGranted) {
 
+            checkGeoAvailability()
+            getGeo()
+            geoService.requestLocationUpdates(locationRequest, geoCallback, null)
+
             initBottomSheets()
             initSwipeRefresh()
 
@@ -126,8 +130,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
     }
 
-    //---------------permission code---------------
-
     private fun requestPermission() {
         ActivityCompat.requestPermissions(
             this,
@@ -149,8 +151,8 @@ class MainActivity : MvpAppCompatActivity(), MainView {
                 finish()
             } else {
                 MaterialAlertDialogBuilder(this)
-                    .setTitle("Нам нужны гео данные")
-                    .setMessage("Пожалуйста, разрешите доступ к данным для дальшейшей работы приложения")
+                    .setTitle(R.string.request_permission)
+                    .setMessage(R.string.dialog_text)
                     .setPositiveButton("Ok") { _, _ ->
                         ActivityCompat.requestPermissions(this,
                             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -170,25 +172,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    //---------------permission code---------------
-
-
-    //---------------location code---------------
-
-    private fun initLocationRequest(): LocationRequest {
-        val request = LocationRequest.create()
-        return request.apply {
-            interval = 10_000
-            fastestInterval = 5_000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-    }
-
-
-
-    //---------------location code---------------
-
-    //--------------- moxy code ---------------
 
     override fun displayLocation(data: String) {
         binding.cityNameTv.text = data
@@ -228,7 +211,8 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     override fun displayError(error: Throwable?) {
-        Toast.makeText(this@MainActivity, "Ошибка", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this@MainActivity, "Ошибка", Toast.LENGTH_SHORT).show()
+        Log.d("MainActivity", "displayError: $error ")
     }
 
     override fun setLoading(flag: Boolean) {
@@ -249,14 +233,14 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             setColorSchemeColors(R.color.purple_500)
             setProgressViewEndTarget(false, 280)
                 setOnRefreshListener {
-                    mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
+                    try {
+                        mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
+                    } catch (e: kotlin.UninitializedPropertyAccessException) {
+                        requestPermission()
+                    }
                 }
             }
         }
-    //--------------- moxy code ---------------
-
-
-    //--------------- geo code ---------------
     @SuppressLint("MissingPermission")
     private fun getGeo() {
         geoService
@@ -265,8 +249,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
                 if (it != null) {
                     mLocation = it
                     mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
-                } else {
-                    displayError(Exception("Geodata is not available"))
                 }
             }
     }
@@ -285,17 +267,10 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             }
         }
     }
-    //--------------- geo code ---------------
-
     companion object {
         private const val LOCATION_RC = 111
     }
 
 }
-
-
-
-
-
 
     // https://api.openweathermap.org/data/2.5/onecall?lat=54.07328&lon=43.2461&exclude=minutely&appid=ca8d1939be2fc1f8cc73a2e515d9ad1f

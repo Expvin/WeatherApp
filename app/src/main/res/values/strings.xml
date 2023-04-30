@@ -32,5 +32,8 @@
     <string name="pressure">Pressure</string>
     <string name="title_settings">Settings</string>
     <string name="degree_symbol" translatable="false">%1$s\u00B0</string>
+
+    <string name="request_permission">You need a permit to work."</string>
+    <string name="dialog_text">"The application cannot work without access to the geo location."</string>
 </resources>
 
