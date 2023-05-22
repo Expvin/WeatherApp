@@ -41,18 +41,21 @@ import kotlin.math.roundToInt
 
 const val TAG = "GEO_TEST"
 const val COORDINATES = "Coordinates"
+
 class MainActivity : MvpAppCompatActivity(), MainView {
     private lateinit var binding: ActivityMainBinding
     private val tokenSource: CancellationTokenSource = CancellationTokenSource()
-    private val mainPresent by moxyPresenter{ MainPresenter() }
+    private val mainPresent by moxyPresenter { MainPresenter() }
     private val geoService by lazy { LocationServices.getFusedLocationProviderClient(this) }
-    private val locationRequest by lazy { LocationRequest.create().apply {
-        interval = 600_000
-        fastestInterval = 5000
-        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-    } }
+    private val locationRequest by lazy {
+        LocationRequest.create().apply {
+            interval = 600_000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+    }
 
-    private val geoCallback = object: LocationCallback() {
+    private val geoCallback = object : LocationCallback() {
         override fun onLocationResult(geo: LocationResult) {
             super.onLocationResult(geo)
             for (location in geo.locations) {
@@ -70,58 +73,53 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val permissionGranted = ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        if (permissionGranted) {
+        checkGeoAvailability()
+        getGeo()
+        geoService.requestLocationUpdates(locationRequest, geoCallback, null)
 
+        initBottomSheets()
+        initSwipeRefresh()
+
+        supportFragmentManager.beginTransaction().add(
+            R.id.fragment_container,
+            DailyListFragment(),
+            DailyListFragment::class.simpleName
+        ).commit()
+
+        binding.mainHourlyList.apply {
+            adapter = MainHourlyListAdapter()
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            setHasFixedSize(true)
+        }
+
+        if (!intent.hasExtra(COORDINATES)) {
             checkGeoAvailability()
             getGeo()
             geoService.requestLocationUpdates(locationRequest, geoCallback, null)
-
-            initBottomSheets()
-            initSwipeRefresh()
-
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, DailyListFragment(), DailyListFragment::class.simpleName)
-                .commit()
-
-            binding.mainHourlyList.apply {
-                adapter = MainHourlyListAdapter()
-                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-                setHasFixedSize(true)
-            }
-
-            if (!intent.hasExtra(COORDINATES)) {
-                checkGeoAvailability()
-                getGeo()
-                geoService.requestLocationUpdates(locationRequest, geoCallback, null)
-            } else {
-                val coord = intent.extras!!.getBundle(COORDINATES)!!
-                val loc = Location("")
-                loc.latitude = coord.getString("lat")!!.toDouble()
-                loc.longitude = coord.getString("lon")!!.toDouble()
-                mLocation = loc
-                mainPresent.refresh(lat = mLocation.latitude.toString(), lot = mLocation.longitude.toString())
-            }
-
-            binding.mainMenuBth.setOnClickListener {
-                val intent = Intent(this, MenuActivity::class.java)
-                startActivity(intent)
-                overridePendingTransition(R.anim.slide_in_left, android.R.anim.fade_out)
-            }
-
-            binding.mainSettingsBth.setOnClickListener {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-                overridePendingTransition( R.anim.slide_in_rigth, android.R.anim.fade_in)
-            }
-
-            mainPresent.enable()
-
         } else {
-            requestPermission()
+            val coord = intent.extras!!.getBundle(COORDINATES)!!
+            val loc = Location("")
+            loc.latitude = coord.getString("lat")!!.toDouble()
+            loc.longitude = coord.getString("lon")!!.toDouble()
+            mLocation = loc
+            mainPresent.refresh(
+                lat = mLocation.latitude.toString(), lot = mLocation.longitude.toString()
+            )
         }
+
+        binding.mainMenuBth.setOnClickListener {
+            val intent = Intent(this, MenuActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_left, android.R.anim.fade_out)
+        }
+
+        binding.mainSettingsBth.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_rigth, android.R.anim.fade_in)
+        }
+
+        mainPresent.enable()
 
     }
 
@@ -132,17 +130,14 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
     private fun requestPermission() {
         ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION),
-            LOCATION_RC
+            this, arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
+            ), LOCATION_RC
         )
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         if (requestCode == LOCATION_RC && grantResults.isNotEmpty()) {
             val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -150,23 +145,21 @@ class MainActivity : MvpAppCompatActivity(), MainView {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             } else {
-                MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.request_permission)
-                    .setMessage(R.string.dialog_text)
-                    .setPositiveButton("Ok") { _, _ ->
-                        ActivityCompat.requestPermissions(this,
+                MaterialAlertDialogBuilder(this).setTitle(R.string.request_permission)
+                    .setMessage(R.string.dialog_text).setPositiveButton("Ok") { _, _ ->
+                        ActivityCompat.requestPermissions(
+                            this,
                             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                             GEO_LOCATION_REQUEST_COD_SUCCESS
                         )
-                        ActivityCompat.requestPermissions(this,
+                        ActivityCompat.requestPermissions(
+                            this,
                             arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                            GEO_LOCATION_REQUEST_COD_SUCCESS)
+                            GEO_LOCATION_REQUEST_COD_SUCCESS
+                        )
                         startActivity(Intent(this, MainActivity::class.java))
                         finish()
-                    }
-                    .setNegativeButton("Cancel") {dialog, _-> dialog.dismiss()}
-                    .create()
-                    .show()
+                    }.setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }.create().show()
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -190,10 +183,15 @@ class MainActivity : MvpAppCompatActivity(), MainView {
                 binding.minMainTempTv.text = min.toDegree()
             }
             val pressureSet = SettingsHolder.pressure
-            binding.mainPressureTv.text = getString(pressureSet.mesureUnitStringRes, pressureSet.getValue(current.pressure.toDouble()))
+            binding.mainPressureTv.text = getString(
+                pressureSet.mesureUnitStringRes, pressureSet.getValue(current.pressure.toDouble())
+            )
             val windSpeedSet = SettingsHolder.windSpeed
-            binding.mainWindSpeedTv.text = getString(windSpeedSet.mesureUnitStringRes, windSpeedSet.getValue(current.wind_speed))
-            binding.mainHumidityTv.text = StringBuilder().append(current.humidity.toString()).append(" %")
+            binding.mainWindSpeedTv.text = getString(
+                windSpeedSet.mesureUnitStringRes, windSpeedSet.getValue(current.wind_speed)
+            )
+            binding.mainHumidityTv.text =
+                StringBuilder().append(current.humidity.toString()).append(" %")
 
             binding.mainSunriseTv.text = current.sunrise.toDayFormatOf(HOUR_DOUBLE_DOT_MINUTE)
             binding.mainSunsetTv.text = current.sunset.toDayFormatOf(HOUR_DOUBLE_DOT_MINUTE)
@@ -206,8 +204,9 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     override fun displayDailyData(data: List<DailyWeatherModel>) {
-       (supportFragmentManager.findFragmentByTag(DailyListFragment::class.simpleName) as DailyListFragment)
-           .setData(data)
+        (supportFragmentManager.findFragmentByTag(DailyListFragment::class.simpleName) as DailyListFragment).setData(
+                data
+            )
     }
 
     override fun displayError(error: Throwable?) {
@@ -232,23 +231,27 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         binding.refresh.apply {
             setColorSchemeColors(R.color.purple_500)
             setProgressViewEndTarget(false, 280)
-                setOnRefreshListener {
-                    try {
-                        mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
-                    } catch (e: kotlin.UninitializedPropertyAccessException) {
-                        requestPermission()
-                    }
+            setOnRefreshListener {
+                try {
+                    mainPresent.refresh(
+                        mLocation.latitude.toString(), mLocation.longitude.toString()
+                    )
+                } catch (e: kotlin.UninitializedPropertyAccessException) {
+                    requestPermission()
                 }
             }
         }
+    }
+
     @SuppressLint("MissingPermission")
     private fun getGeo() {
-        geoService
-            .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, tokenSource.token)
+        geoService.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, tokenSource.token)
             .addOnSuccessListener {
                 if (it != null) {
                     mLocation = it
-                    mainPresent.refresh(mLocation.latitude.toString(), mLocation.longitude.toString())
+                    mainPresent.refresh(
+                        mLocation.latitude.toString(), mLocation.longitude.toString()
+                    )
                 }
             }
     }
@@ -257,7 +260,7 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
         val client = LocationServices.getSettingsClient(this)
         val task = client.checkLocationSettings(builder.build())
-        task.addOnFailureListener { exception  ->
+        task.addOnFailureListener { exception ->
             if (exception is ResolvableApiException) {
                 try {
                     exception.startResolutionForResult(this, 100)
@@ -267,10 +270,11 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             }
         }
     }
+
     companion object {
         private const val LOCATION_RC = 111
     }
 
 }
 
-    // https://api.openweathermap.org/data/2.5/onecall?lat=54.07328&lon=43.2461&exclude=minutely&appid=ca8d1939be2fc1f8cc73a2e515d9ad1f
+// https://api.openweathermap.org/data/2.5/onecall?lat=54.07328&lon=43.2461&exclude=minutely&appid=ca8d1939be2fc1f8cc73a2e515d9ad1f
