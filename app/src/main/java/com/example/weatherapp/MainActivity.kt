@@ -135,35 +135,35 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             ), LOCATION_RC
         )
     }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        if (requestCode == LOCATION_RC && grantResults.isNotEmpty()) {
-            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-            if (permissionGranted) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            } else {
-                MaterialAlertDialogBuilder(this).setTitle(R.string.request_permission)
-                    .setMessage(R.string.dialog_text).setPositiveButton("Ok") { _, _ ->
-                        ActivityCompat.requestPermissions(
-                            this,
-                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                            GEO_LOCATION_REQUEST_COD_SUCCESS
-                        )
-                        ActivityCompat.requestPermissions(
-                            this,
-                            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                            GEO_LOCATION_REQUEST_COD_SUCCESS
-                        )
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }.setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }.create().show()
-            }
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
+//
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+//    ) {
+//        if (requestCode == LOCATION_RC && grantResults.isNotEmpty()) {
+//            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+//            if (permissionGranted) {
+//                startActivity(Intent(this, MainActivity::class.java))
+//                finish()
+//            } else {
+//                MaterialAlertDialogBuilder(this).setTitle(R.string.request_permission)
+//                    .setMessage(R.string.dialog_text).setPositiveButton("Ok") { _, _ ->
+//                        ActivityCompat.requestPermissions(
+//                            this,
+//                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+//                            GEO_LOCATION_REQUEST_COD_SUCCESS
+//                        )
+//                        ActivityCompat.requestPermissions(
+//                            this,
+//                            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+//                            GEO_LOCATION_REQUEST_COD_SUCCESS
+//                        )
+//                        startActivity(Intent(this, MainActivity::class.java))
+//                        finish()
+//                    }.setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }.create().show()
+//            }
+//        }
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//    }
 
 
     override fun displayLocation(data: String) {
