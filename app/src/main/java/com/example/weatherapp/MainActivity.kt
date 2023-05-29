@@ -4,26 +4,19 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentSender
-import android.content.pm.PackageManager
 import android.graphics.Point
 import android.location.Location
-import android.media.ResourceBusyException
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.weatherapp.Extensions.isPermissionGranted
 import com.example.weatherapp.business.model.DailyWeatherModel
 import com.example.weatherapp.business.model.HourlyWeatherModel
 import com.example.weatherapp.business.model.WeatherDataModel
 import com.example.weatherapp.presenters.MainPresenter
 import com.example.weatherapp.databinding.ActivityMainBinding
 import com.example.weatherapp.view.*
-import com.example.weatherapp.view.adapters.MainDailyAdapter
 import com.example.weatherapp.view.adapters.MainHourlyListAdapter
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationCallback
@@ -32,7 +25,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
@@ -135,36 +127,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
             ), LOCATION_RC
         )
     }
-//
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-//    ) {
-//        if (requestCode == LOCATION_RC && grantResults.isNotEmpty()) {
-//            val permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-//            if (permissionGranted) {
-//                startActivity(Intent(this, MainActivity::class.java))
-//                finish()
-//            } else {
-//                MaterialAlertDialogBuilder(this).setTitle(R.string.request_permission)
-//                    .setMessage(R.string.dialog_text).setPositiveButton("Ok") { _, _ ->
-//                        ActivityCompat.requestPermissions(
-//                            this,
-//                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-//                            GEO_LOCATION_REQUEST_COD_SUCCESS
-//                        )
-//                        ActivityCompat.requestPermissions(
-//                            this,
-//                            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-//                            GEO_LOCATION_REQUEST_COD_SUCCESS
-//                        )
-//                        startActivity(Intent(this, MainActivity::class.java))
-//                        finish()
-//                    }.setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }.create().show()
-//            }
-//        }
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//    }
-
 
     override fun displayLocation(data: String) {
         binding.cityNameTv.text = data
@@ -210,7 +172,6 @@ class MainActivity : MvpAppCompatActivity(), MainView {
     }
 
     override fun displayError(error: Throwable?) {
-//        Toast.makeText(this@MainActivity, "Ошибка", Toast.LENGTH_SHORT).show()
         Log.d("MainActivity", "displayError: $error ")
     }
 
